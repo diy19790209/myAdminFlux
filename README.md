@@ -11,7 +11,7 @@ npm install -g webpack
 ```markdown
 webpack -d --watch
 ```
-可將 ajax 寫在 Dispatcher 的事件內 
+可將 ajax 寫在 Dispatcher OR Actions 的事件內 
 ```markdown
 Actions = {
   updateData: function(data) {
