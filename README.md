@@ -11,6 +11,18 @@ npm install -g webpack
 ```markdown
 webpack -d --watch
 ```
+Flux 建立順序
+```markdown
+Dispatcher -> Action -> Store -> ReactComponent
+介由 ReactComponent 執行 Action 跟 監聽 Store 內的事件
+而 Dispatcher 在 Stroe 中 register Action執行後的結果, 並觸發 Stroe 所設定的 EventEmitter 
+```
+Flux 執行關聯圖
+```markdown
+ReactComponent -> Action -> Dispatcher
+      |                          |
+      |<----------Stroe <--------|
+```
 可將 ajax 寫在 Dispatcher 或 Actions 的事件內 
 ```markdown
 Actions = {
