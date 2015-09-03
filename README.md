@@ -1,3 +1,3 @@
-建置順序
-npm install
+建置順序<br />
+npm install<br />
 npm start
