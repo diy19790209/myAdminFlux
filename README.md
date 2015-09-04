@@ -1,3 +1,43 @@
-建置順序<br />
-npm install<br />
+建置順序
+```markdown
+npm install
 npm start
+```
+安裝 Webpack
+```markdown
+npm install -g webpack
+```
+監聽 js 更新
+```markdown
+webpack -d --watch
+```
+Flux 建立順序
+```markdown
+Dispatcher -> Action -> Store -> ReactComponent
+介由 ReactComponent 執行 Action 跟 監聽 Store 內的事件
+而 Dispatcher 在 Stroe 中 register Action執行後的結果, 並觸發 Stroe 所設定的 EventEmitter 
+```
+Flux 執行關聯圖
+```markdown
+ReactComponent -> Action -> Dispatcher
+      |                          |
+      |<----------Stroe <--------|
+```
+可將 ajax 寫在 Dispatcher 或 Actions 的事件內 
+```markdown
+Actions = {
+  updateData: function(data) {
+    dispatch('UPDATE_DATA');
+    $.ajax({
+      url: '...',
+      data: data,
+      success: function(response) {
+        dispatch('UPDATE_DATA_SUCCESS', response);
+      },
+      error: function(response) {
+        dispatch('UPDATE_DATA_ERROR', response);
+      }
+    })
+  }
+}
+```
