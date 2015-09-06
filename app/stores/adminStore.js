@@ -10,19 +10,33 @@ var CHANGE_VIEW_ITEMS = 'change_view_items';
 
 var _store = {
   search: [],
-  list:{cloumn:[], lists:[]},
+  list:
+    {
+      cloumn : ["姓名", "密碼", "Action"],
+      lists : [
+        ["jasonwang", "1234"],
+        ["zoey", "45678"]
+      ]
+    },
+  resultList:
+    {
+      rescloumn : ["姓名", "密碼", "Action"],
+      reslists : [
+        ["jasonwang", "1234"],
+        ["zoey", "45678"]
+      ]
+    },
   view:[],
   status: {ListView : true, View: false}
 };
 
 var addItem = function(items){
-  console.log('addItem');
   _store.list.lists = React.addons.update(_store.list.lists, {$push: [items]});
-  console.log(_store.list.lists);
+  _store.resultList.rescloumn = _store.list.cloumn;
+  _store.resultList.reslists = _store.list.lists;
 };
 
 var setSearchItems = function(items) {
-   console.log('setSearchItems');
    _store.search = items;
 };
 
@@ -31,14 +45,25 @@ var setViewItems = function(items) {
   _store.view = items;
 }
 
-var setList = function(items) {
-   console.log('setList');
-   _store.list = items;
+var searchList = function(items) {
+   var name = items[0].value;
+   var resultLists = [];
+   _store.list.lists.map(function (item, index){
+      if (name == "") {
+        resultLists.push(item);
+      }
+      if (name == item[0]) {
+        resultLists.push(item);
+      }
+    });
+   _store.resultList.rescloumn = _store.list.cloumn;
+   _store.resultList.reslists = resultLists;
 };
 
 var deleteListItem = function(index) {
-   console.log('deleteListItem => ' + index);
    _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[index,1]]});
+   _store.resultList.rescloumn = _store.list.cloumn;
+   _store.resultList.reslists = _store.list.lists;
 };
 
 var adminStore = objectAssign({}, EventEmitter.prototype, {
@@ -67,7 +92,7 @@ var adminStore = objectAssign({}, EventEmitter.prototype, {
     return _store.view;
   },
   getListItems: function() {
-    return _store.list;
+    return _store.resultList;
   },
   getViewItems: function() {
     return _store.view;
@@ -85,7 +110,7 @@ AdminDispatcher.register(function(payload){
       adminStore.emit(CHANGE_EVENT);
     break;
     case AdminConstants.SEARCH:
-      setList(action.data);
+      searchList(action.data);
       adminStore.emit(CHANGE_EVENT);
     break;
     case AdminConstants.DELETE:

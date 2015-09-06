@@ -12,7 +12,7 @@ var AdminConstants = React.createClass({
   },
   _onChange: function(){
     this.setState({
-      list: adminStore.getListItems()
+      resultList: adminStore.getListItems()
     });
   },
   _setSearchItems: function(items) {
@@ -64,7 +64,7 @@ var AdminConstants = React.createClass({
     return (
       <div>
         <SearchBar search={this._search} add={this._openAddView} items={this.state.search} />
-        <ListView items={this.state.list} delete={this._delete} status={this.state.status.ListView} />
+        <ListView items={this.state.resultList} delete={this._delete} status={this.state.status.ListView} />
         <View items={this.state.view} add={this._add} status={this.state.status.View} />
       </div>
     );

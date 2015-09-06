@@ -15,17 +15,9 @@ var adminAction = {
     });
   },
   search: function(searchValues) {
-    // 假設已經 callback 回傳結果
-    var listItem = {
-      cloumn : ["姓名", "密碼", "Action"],
-      lists : [
-        ["jasonwang", "1234"],
-        ["zoey", "45678"]
-      ]
-    };
     AdminDispatcher.handleAction({
       actionType: AdminConstants.SEARCH,
-      data: listItem
+      data: searchValues
     });
   },
   delete: function(index) {
@@ -42,13 +34,7 @@ var adminAction = {
           name: "name",
           type: "text",
           value: ""
-        },
-        {
-          title: "帳號",
-          name: "id",
-          type: "password",
-          value: ""
-        },
+        }
     ];
     AdminDispatcher.handleAction({
       actionType: AdminConstants.SET_SEARCH_ITEMS,

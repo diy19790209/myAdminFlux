@@ -13,12 +13,12 @@ var ListView = React.createClass({
         <div />
       );
     }
-    var cloumnItems = this.props.items.cloumn.map(function(item, index) {
+    var cloumnItems = this.props.items.rescloumn.map(function(item, index) {
       return (
         <td key={index}>{item}</td>
       );
     });
-    var rowItems = this.props.items.lists.map(function(rows, rowsindex) {
+    var rowItems = this.props.items.reslists.map(function(rows, rowsindex) {
       var tdItems = rows.map(function(item, itemIndex) {
         return (
           <td key={itemIndex}>

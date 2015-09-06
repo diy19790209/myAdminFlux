@@ -19371,10 +19371,10 @@
 
 	var React = __webpack_require__(/*! react */ 1);
 	var SearchBar = __webpack_require__(/*! ./SearchBar */ 149);
-	var ListView = __webpack_require__(/*! ./ListView */ 158);
-	var View = __webpack_require__(/*! ./View */ 175);
-	var adminStore = __webpack_require__(/*! ../stores/adminStore */ 150);
-	var adminAction = __webpack_require__(/*! ../actions/adminAction */ 157);
+	var ListView = __webpack_require__(/*! ./ListView */ 150);
+	var View = __webpack_require__(/*! ./View */ 151);
+	var adminStore = __webpack_require__(/*! ../stores/adminStore */ 152);
+	var adminAction = __webpack_require__(/*! ../actions/adminAction */ 175);
 	
 	var AdminConstants = React.createClass({displayName: "AdminConstants",
 	  getInitialState: function() {
@@ -19383,7 +19383,7 @@
 	  },
 	  _onChange: function(){
 	    this.setState({
-	      list: adminStore.getListItems()
+	      resultList: adminStore.getListItems()
 	    });
 	  },
 	  _setSearchItems: function(items) {
@@ -19435,7 +19435,7 @@
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(SearchBar, {search: this._search, add: this._openAddView, items: this.state.search}), 
-	        React.createElement(ListView, {items: this.state.list, delete: this._delete, status: this.state.status.ListView}), 
+	        React.createElement(ListView, {items: this.state.resultList, delete: this._delete, status: this.state.status.ListView}), 
 	        React.createElement(View, {items: this.state.view, add: this._add, status: this.state.status.View})
 	      )
 	    );
@@ -19473,17 +19473,19 @@
 	  render: function() {
 	    var listItems = this.props.items.map(function(item, index){
 	      return (
-	        React.createElement("div", null, 
-	          React.createElement("span", null, item.title, " : "), 
-	          React.createElement("input", {key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
+	        React.createElement("div", {className: "input-group"}, 
+	          React.createElement("span", {className: "input-group-addon"}, item.title), 
+	          React.createElement("input", {className: "form-control", key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
 	        )
 	      )
 	    }.bind(this));
 	    return (
-	      React.createElement("div", null, 
+	      React.createElement("form", null, 
 	        listItems, 
+	        React.createElement("div", {className: "input-group"}, 
 	        React.createElement("input", {type: "button", value: "搜尋", onClick: this._search}), 
 	        React.createElement("input", {type: "button", value: "新增", onClick: this._add})
+	        )
 	      )
 	    )
 	  }
@@ -19494,15 +19496,121 @@
 
 /***/ },
 /* 150 */
+/*!************************************!*\
+  !*** ./app/components/ListView.js ***!
+  \************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(/*! react */ 1);
+	
+	var ListView = React.createClass({displayName: "ListView",
+	  _delete: function(index) {
+	    this.props.delete(index);
+	  },
+	  componentDidMount: function() {
+	    console.log('ListView componentDidMount');
+	  },
+	  render : function() {
+	    if (this.props.status == false) {
+	      return (
+	        React.createElement("div", null)
+	      );
+	    }
+	    var cloumnItems = this.props.items.rescloumn.map(function(item, index) {
+	      return (
+	        React.createElement("td", {key: index}, item)
+	      );
+	    });
+	    var rowItems = this.props.items.reslists.map(function(rows, rowsindex) {
+	      var tdItems = rows.map(function(item, itemIndex) {
+	        return (
+	          React.createElement("td", {key: itemIndex}, 
+	          item
+	          )
+	        );
+	      });
+	      return (
+	        React.createElement("tr", {key: rowsindex}, 
+	          tdItems, 
+	          React.createElement("td", null, 
+	            React.createElement("input", {type: "button", value: "刪除", onClick: this._delete.bind(this, rowsindex)})
+	          )
+	        )
+	      );
+	    }.bind(this));
+	    return (
+	      React.createElement("table", {className: "table table-bordered table-hover"}, 
+	        React.createElement("thead", null, 
+	          React.createElement("tr", null, 
+	            cloumnItems
+	          )
+	        ), 
+	        React.createElement("tbody", null, 
+	          rowItems
+	        )
+	      )
+	    );
+	  }
+	});
+	module.exports = ListView;
+
+
+/***/ },
+/* 151 */
+/*!********************************!*\
+  !*** ./app/components/View.js ***!
+  \********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(/*! react */ 1);
+	
+	var View = React.createClass({displayName: "View",
+	  _add: function() {
+	    items = this.props.items.map(function(item, index){
+	      return this.refs[item.name].getDOMNode().value;
+	    }.bind(this));
+	    this.props.add(items);
+	  },
+	  componentDidMount: function() {
+	    console.log('View componentDidMount');
+	  },
+	  render: function() {
+	    if (this.props.status == false) {
+	      return (
+	        React.createElement("div", null)
+	      );
+	    }
+	    var listItems = this.props.items.map(function(item, index){
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("span", null, item.title, " : "), 
+	          React.createElement("input", {key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
+	        )
+	      )
+	    }.bind(this));
+	    return (
+	      React.createElement("div", null, 
+	        listItems, 
+	        React.createElement("input", {type: "button", value: "新增", onClick: this._add})
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = View;
+
+
+/***/ },
+/* 152 */
 /*!**********************************!*\
   !*** ./app/stores/adminStore.js ***!
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var AdminDispatcher = __webpack_require__(/*! ../dispatcher/AdminDispatcher */ 151);
-	var AdminConstants = __webpack_require__(/*! ../constants/AdminConstants */ 155);
+	var AdminDispatcher = __webpack_require__(/*! ../dispatcher/AdminDispatcher */ 153);
+	var AdminConstants = __webpack_require__(/*! ../constants/AdminConstants */ 157);
 	var objectAssign = __webpack_require__(/*! react/lib/Object.assign */ 19);
-	var EventEmitter = __webpack_require__(/*! events */ 156).EventEmitter;
+	var EventEmitter = __webpack_require__(/*! events */ 158).EventEmitter;
 	var React = __webpack_require__(/*! react/addons */ 159);
 	
 	var CHANGE_EVENT = 'change';
@@ -19511,19 +19619,33 @@
 	
 	var _store = {
 	  search: [],
-	  list:{cloumn:[], lists:[]},
+	  list:
+	    {
+	      cloumn : ["姓名", "密碼", "Action"],
+	      lists : [
+	        ["jasonwang", "1234"],
+	        ["zoey", "45678"]
+	      ]
+	    },
+	  resultList:
+	    {
+	      rescloumn : ["姓名", "密碼", "Action"],
+	      reslists : [
+	        ["jasonwang", "1234"],
+	        ["zoey", "45678"]
+	      ]
+	    },
 	  view:[],
 	  status: {ListView : true, View: false}
 	};
 	
 	var addItem = function(items){
-	  console.log('addItem');
 	  _store.list.lists = React.addons.update(_store.list.lists, {$push: [items]});
-	  console.log(_store.list.lists);
+	  _store.resultList.rescloumn = _store.list.cloumn;
+	  _store.resultList.reslists = _store.list.lists;
 	};
 	
 	var setSearchItems = function(items) {
-	   console.log('setSearchItems');
 	   _store.search = items;
 	};
 	
@@ -19532,14 +19654,25 @@
 	  _store.view = items;
 	}
 	
-	var setList = function(items) {
-	   console.log('setList');
-	   _store.list = items;
+	var searchList = function(items) {
+	   var name = items[0].value;
+	   var resultLists = [];
+	   _store.list.lists.map(function (item, index){
+	      if (name == "") {
+	        resultLists.push(item);
+	      }
+	      if (name == item[0]) {
+	        resultLists.push(item);
+	      }
+	    });
+	   _store.resultList.rescloumn = _store.list.cloumn;
+	   _store.resultList.reslists = resultLists;
 	};
 	
 	var deleteListItem = function(index) {
-	   console.log('deleteListItem => ' + index);
 	   _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[index,1]]});
+	   _store.resultList.rescloumn = _store.list.cloumn;
+	   _store.resultList.reslists = _store.list.lists;
 	};
 	
 	var adminStore = objectAssign({}, EventEmitter.prototype, {
@@ -19568,7 +19701,7 @@
 	    return _store.view;
 	  },
 	  getListItems: function() {
-	    return _store.list;
+	    return _store.resultList;
 	  },
 	  getViewItems: function() {
 	    return _store.view;
@@ -19586,7 +19719,7 @@
 	      adminStore.emit(CHANGE_EVENT);
 	    break;
 	    case AdminConstants.SEARCH:
-	      setList(action.data);
+	      searchList(action.data);
 	      adminStore.emit(CHANGE_EVENT);
 	    break;
 	    case AdminConstants.DELETE:
@@ -19610,13 +19743,13 @@
 
 
 /***/ },
-/* 151 */
+/* 153 */
 /*!*******************************************!*\
   !*** ./app/dispatcher/AdminDispatcher.js ***!
   \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var Dispatcher = __webpack_require__(/*! flux */ 152).Dispatcher;
+	var Dispatcher = __webpack_require__(/*! flux */ 154).Dispatcher;
 	var AdminDispatcher = new Dispatcher();
 	
 	AdminDispatcher.handleAction = function(action) {
@@ -19630,7 +19763,7 @@
 
 
 /***/ },
-/* 152 */
+/* 154 */
 /*!*************************!*\
   !*** ./~/flux/index.js ***!
   \*************************/
@@ -19645,11 +19778,11 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 153);
+	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 155);
 
 
 /***/ },
-/* 153 */
+/* 155 */
 /*!**********************************!*\
   !*** ./~/flux/lib/Dispatcher.js ***!
   \**********************************/
@@ -19674,7 +19807,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 154);
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 156);
 	
 	var _prefix = 'ID_';
 	
@@ -19889,7 +20022,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! (webpack)/~/node-libs-browser/~/process/browser.js */ 3)))
 
 /***/ },
-/* 154 */
+/* 156 */
 /*!****************************************!*\
   !*** ./~/flux/~/fbjs/lib/invariant.js ***!
   \****************************************/
@@ -19947,7 +20080,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! (webpack)/~/node-libs-browser/~/process/browser.js */ 3)))
 
 /***/ },
-/* 155 */
+/* 157 */
 /*!*****************************************!*\
   !*** ./app/constants/AdminConstants.js ***!
   \*****************************************/
@@ -19966,7 +20099,7 @@
 
 
 /***/ },
-/* 156 */
+/* 158 */
 /*!****************************!*\
   !*** ./~/events/events.js ***!
   \****************************/
@@ -20273,156 +20406,6 @@
 	function isUndefined(arg) {
 	  return arg === void 0;
 	}
-
-
-/***/ },
-/* 157 */
-/*!************************************!*\
-  !*** ./app/actions/adminAction.js ***!
-  \************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var AdminDispatcher = __webpack_require__(/*! ../dispatcher/AdminDispatcher */ 151);
-	var AdminConstants = __webpack_require__(/*! ../constants/AdminConstants */ 155);
-	
-	var adminAction = {
-	  add: function(items) {
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.ADD,
-	      data: items
-	    });
-	  },
-	  edit: function(items) {
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.EDIT,
-	      data: items
-	    });
-	  },
-	  search: function(searchValues) {
-	    // 假設已經 callback 回傳結果
-	    var listItem = {
-	      cloumn : ["姓名", "密碼", "Action"],
-	      lists : [
-	        ["jasonwang", "1234"],
-	        ["zoey", "45678"]
-	      ]
-	    };
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.SEARCH,
-	      data: listItem
-	    });
-	  },
-	  delete: function(index) {
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.DELETE,
-	      data: index
-	    });
-	  },
-	  setSearchItems: function(appNum) {
-	    // 假設已經 callback 回傳結果
-	    var items = [
-	        {
-	          title: "姓名",
-	          name: "name",
-	          type: "text",
-	          value: ""
-	        },
-	        {
-	          title: "帳號",
-	          name: "id",
-	          type: "password",
-	          value: ""
-	        },
-	    ];
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.SET_SEARCH_ITEMS,
-	      data: items
-	    });
-	  },
-	  setViewItems: function(appNum, index) {
-	    // 假設已經 callback 回傳結果
-	    var items = [
-	        {
-	          title: "姓名",
-	          name: "name",
-	          type: "text",
-	          value: ""
-	        },
-	        {
-	          title: "帳號",
-	          name: "id",
-	          type: "password",
-	          value: ""
-	        },
-	    ];
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.SET_VIEW_ITEMS,
-	      data: items
-	    });
-	  }
-	}
-	module.exports = adminAction;
-
-
-/***/ },
-/* 158 */
-/*!************************************!*\
-  !*** ./app/components/ListView.js ***!
-  \************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(/*! react */ 1);
-	
-	var ListView = React.createClass({displayName: "ListView",
-	  _delete: function(index) {
-	    this.props.delete(index);
-	  },
-	  componentDidMount: function() {
-	    console.log('ListView componentDidMount');
-	  },
-	  render : function() {
-	    if (this.props.status == false) {
-	      return (
-	        React.createElement("div", null)
-	      );
-	    }
-	    var cloumnItems = this.props.items.cloumn.map(function(item, index) {
-	      return (
-	        React.createElement("td", {key: index}, item)
-	      );
-	    });
-	    var rowItems = this.props.items.lists.map(function(rows, rowsindex) {
-	      var tdItems = rows.map(function(item, itemIndex) {
-	        return (
-	          React.createElement("td", {key: itemIndex}, 
-	          item
-	          )
-	        );
-	      });
-	      return (
-	        React.createElement("tr", {key: rowsindex}, 
-	          tdItems, 
-	          React.createElement("td", null, 
-	            React.createElement("input", {type: "button", value: "刪除", onClick: this._delete.bind(this, rowsindex)})
-	          )
-	        )
-	      );
-	    }.bind(this));
-	    return (
-	      React.createElement("table", {className: "table table-bordered table-hover"}, 
-	        React.createElement("thead", null, 
-	          React.createElement("tr", null, 
-	            cloumnItems
-	          )
-	        ), 
-	        React.createElement("tbody", null, 
-	          rowItems
-	        )
-	      )
-	    );
-	  }
-	});
-	module.exports = ListView;
 
 
 /***/ },
@@ -22253,47 +22236,77 @@
 
 /***/ },
 /* 175 */
-/*!********************************!*\
-  !*** ./app/components/View.js ***!
-  \********************************/
+/*!************************************!*\
+  !*** ./app/actions/adminAction.js ***!
+  \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(/*! react */ 1);
+	var AdminDispatcher = __webpack_require__(/*! ../dispatcher/AdminDispatcher */ 153);
+	var AdminConstants = __webpack_require__(/*! ../constants/AdminConstants */ 157);
 	
-	var View = React.createClass({displayName: "View",
-	  _add: function() {
-	    items = this.props.items.map(function(item, index){
-	      return this.refs[item.name].getDOMNode().value;
-	    }.bind(this));
-	    this.props.add(items);
+	var adminAction = {
+	  add: function(items) {
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.ADD,
+	      data: items
+	    });
 	  },
-	  componentDidMount: function() {
-	    console.log('View componentDidMount');
+	  edit: function(items) {
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.EDIT,
+	      data: items
+	    });
 	  },
-	  render: function() {
-	    if (this.props.status == false) {
-	      return (
-	        React.createElement("div", null)
-	      );
-	    }
-	    var listItems = this.props.items.map(function(item, index){
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement("span", null, item.title, " : "), 
-	          React.createElement("input", {key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
-	        )
-	      )
-	    }.bind(this));
-	    return (
-	      React.createElement("div", null, 
-	        listItems, 
-	        React.createElement("input", {type: "button", value: "新增", onClick: this._add})
-	      )
-	    );
+	  search: function(searchValues) {
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.SEARCH,
+	      data: searchValues
+	    });
+	  },
+	  delete: function(index) {
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.DELETE,
+	      data: index
+	    });
+	  },
+	  setSearchItems: function(appNum) {
+	    // 假設已經 callback 回傳結果
+	    var items = [
+	        {
+	          title: "姓名",
+	          name: "name",
+	          type: "text",
+	          value: ""
+	        }
+	    ];
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.SET_SEARCH_ITEMS,
+	      data: items
+	    });
+	  },
+	  setViewItems: function(appNum, index) {
+	    // 假設已經 callback 回傳結果
+	    var items = [
+	        {
+	          title: "姓名",
+	          name: "name",
+	          type: "text",
+	          value: ""
+	        },
+	        {
+	          title: "帳號",
+	          name: "id",
+	          type: "password",
+	          value: ""
+	        },
+	    ];
+	    AdminDispatcher.handleAction({
+	      actionType: AdminConstants.SET_VIEW_ITEMS,
+	      data: items
+	    });
 	  }
-	});
-	
-	module.exports = View;
+	}
+	module.exports = adminAction;
 
 
 /***/ }

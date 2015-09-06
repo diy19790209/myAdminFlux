@@ -19,18 +19,20 @@ var SearchBar = React.createClass({
   render: function() {
     var listItems = this.props.items.map(function(item, index){
       return (
-        <div>
-          <span>{item.title} : </span>
-          <input key={index} type={item.type} ref={item.name} id={item.name} defaultValue={item.value}  />
+        <div className="input-group">
+          <span className="input-group-addon">{item.title}</span>
+          <input className="form-control" key={index} type={item.type} ref={item.name} id={item.name} defaultValue={item.value}  />
         </div>
       )
     }.bind(this));
     return (
-      <div>
+      <form>
         {listItems}
+        <div className="input-group">
         <input type="button" value="搜尋" onClick={this._search} />
         <input type="button" value="新增" onClick={this._add} />
-      </div>
+        </div>
+      </form>
     )
   }
 });
