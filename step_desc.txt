@@ -1,5 +1,0 @@
-1.create Dispatcher
-2.create Actions 和 ActionConstants
-3.create Store AND require Dispatcher AND ActionConstants, Object.assign, events.EventEmitter
-set objectAssign() and Dispatcher.register
-4.create View 
