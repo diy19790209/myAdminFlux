@@ -49,3 +49,12 @@ Actions = {
 Flux 的架構主要是用主 root Component 的 state 去控制 子 Component 的項目刷新
 這種設計有助於 Component 在 Model 中的流動,
 當然 子 Component 的無state 設計也只是個建議參考
+
+參考連結
+```markdown
+http://facebook.github.io/react/index.html
+http://tylermcginnis.com/reactjs-tutorial-pt-2-building-react-applications-with-gulp-and-browserify/
+http://tylermcginnis.com/reactjs-tutorial-pt-3-architecting-react-js-apps-with-flux/
+http://ryanclark.me/getting-started-with-flux/
+https://discuss.reactjs.org/t/server-data-flow-in-out-of-flux-life-cycle/389/5
+```
