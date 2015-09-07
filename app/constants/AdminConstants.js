@@ -3,7 +3,6 @@ var AdminConstants = {
   EDIT: "EDIT",
   SEARCH: "SEARCH",
   DELETE: "DELETE",
-  SET_SEARCH_ITEMS: "SET_SEARCH_ITEMS",
   SET_VIEW_ITEMS: "SET_VIEW_ITEMS"
 };
 

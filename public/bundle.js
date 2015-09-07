@@ -19386,31 +19386,35 @@
 	      resultList: adminStore.getListItems()
 	    });
 	  },
-	  _setSearchItems: function(items) {
+	  _setViewItems: function(index) {
+	    adminAction.setViewItems(index);
 	    this.setState({
-	      search: adminStore.getSearchItems()
-	    });
-	  },
-	  _setViewItems: function(items) {
-	    this.setState({
+	      status: {ListView : false, View: true},
 	      view: adminStore.getViewItems()
 	    });
 	  },
 	  _search: function(items) {
-	    this.setState({
-	      status: {ListView : true, View: false}
-	    });
 	    adminAction.search(items);
+	    this.setState({
+	      status: {ListView : true, View: false},
+	      resultList: adminStore.getListItems()
+	    });
 	  },
 	  _delete: function(index) {
 	    adminAction.delete(index);
 	  },
-	  _openAddView: function() {
-	    console.log('_openAddView');
+	  _edit: function(items) {
 	    this.setState({
-	      status: {ListView : false, View: true}
+	      status: {ListView : true, View: false}
 	    });
-	    adminAction.setViewItems(100, 0);
+	    adminAction.edit(items);
+	  },
+	  _openAddView: function() {
+	    adminAction.setViewItems(-1);
+	    this.setState({
+	      status: {ListView : false, View: true},
+	      view: adminStore.getViewItems()
+	    });
 	  },
 	  _add: function(items) {
 	    this.setState({
@@ -19420,23 +19424,18 @@
 	  },
 	  componentDidMount: function() {
 	    adminStore.addChangeListener(this._onChange);
-	    adminStore.addChangeSearchItemsListener(this._setSearchItems);
-	    adminStore.addChangeViewItemsListener(this._setViewItems);
-	    adminAction.setSearchItems(100);
 	    console.log('componentDidMount');
 	  },
 	  componentWillUnmount: function() {
 	    adminStore.removeChangeListener(this._onChange);
-	    adminStore.removeChangeSearchItemsListener(this._setSearchItems);
-	    adminStore.removeChangeViewItemsListener(this._setViewItems);
 	    console.log('componentWillUnmount');
 	  },
 	  render: function() {
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(SearchBar, {search: this._search, add: this._openAddView, items: this.state.search}), 
-	        React.createElement(ListView, {items: this.state.resultList, delete: this._delete, status: this.state.status.ListView}), 
-	        React.createElement(View, {items: this.state.view, add: this._add, status: this.state.status.View})
+	        React.createElement(ListView, {items: this.state.resultList, edit: this._setViewItems, delete: this._delete, status: this.state.status.ListView}), 
+	        React.createElement(View, {items: this.state.view, edit: this._edit, add: this._add, status: this.state.status.View})
 	      )
 	    );
 	  }
@@ -19473,19 +19472,17 @@
 	  render: function() {
 	    var listItems = this.props.items.map(function(item, index){
 	      return (
-	        React.createElement("div", {className: "input-group"}, 
-	          React.createElement("span", {className: "input-group-addon"}, item.title), 
+	        React.createElement("div", {className: "form-group has-success"}, 
+	          React.createElement("label", {className: "control-label"}, item.title), 
 	          React.createElement("input", {className: "form-control", key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
 	        )
 	      )
 	    }.bind(this));
 	    return (
-	      React.createElement("form", null, 
+	      React.createElement("div", null, 
 	        listItems, 
-	        React.createElement("div", {className: "input-group"}, 
-	        React.createElement("input", {type: "button", value: "搜尋", onClick: this._search}), 
-	        React.createElement("input", {type: "button", value: "新增", onClick: this._add})
-	        )
+	        React.createElement("input", {type: "button", className: "btn btn-success", style: {margin:5}, value: "搜尋", onClick: this._search}), 
+	        React.createElement("input", {type: "button", className: "btn btn-info", style: {margin:5}, value: "新增", onClick: this._add})
 	      )
 	    )
 	  }
@@ -19505,7 +19502,11 @@
 	
 	var ListView = React.createClass({displayName: "ListView",
 	  _delete: function(index) {
+	    console.log(index);
 	    this.props.delete(index);
+	  },
+	  _edit: function(index) {
+	    this.props.edit(index);
 	  },
 	  componentDidMount: function() {
 	    console.log('ListView componentDidMount');
@@ -19533,13 +19534,14 @@
 	        React.createElement("tr", {key: rowsindex}, 
 	          tdItems, 
 	          React.createElement("td", null, 
-	            React.createElement("input", {type: "button", value: "刪除", onClick: this._delete.bind(this, rowsindex)})
+	            React.createElement("input", {className: "btn btn-danger", style: {margin:5}, type: "button", value: "刪除", onClick: this._delete.bind(this, rows[0])}), 
+	            React.createElement("input", {className: "btn btn-warning", style: {margin:5}, type: "button", value: "修改", onClick: this._edit.bind(this, rows[0])})
 	          )
 	        )
 	      );
 	    }.bind(this));
 	    return (
-	      React.createElement("table", {className: "table table-bordered table-hover"}, 
+	      React.createElement("table", {className: "table table-bordered table-striped", style: {margin: '5px 0px 0px 0px'}}, 
 	        React.createElement("thead", null, 
 	          React.createElement("tr", null, 
 	            cloumnItems
@@ -19566,10 +19568,16 @@
 	
 	var View = React.createClass({displayName: "View",
 	  _add: function() {
-	    items = this.props.items.map(function(item, index){
+	    items = this.props.items.fields.map(function(item, index){
 	      return this.refs[item.name].getDOMNode().value;
 	    }.bind(this));
 	    this.props.add(items);
+	  },
+	  _edit: function() {
+	    items = this.props.items.fields.map(function(item, index){
+	      return this.refs[item.name].getDOMNode().value;
+	    }.bind(this));
+	    this.props.edit(items);
 	  },
 	  componentDidMount: function() {
 	    console.log('View componentDidMount');
@@ -19580,18 +19588,32 @@
 	        React.createElement("div", null)
 	      );
 	    }
-	    var listItems = this.props.items.map(function(item, index){
+	    var listItems = this.props.items.fields.map(function(item, index){
+	
+	      var label = React.createElement("label", {className: "control-label"}, item.title);
+	      if (item.type == 'hidden') {
+	        label = React.createElement("div", null);
+	      }
+	
 	      return (
-	        React.createElement("div", null, 
-	          React.createElement("span", null, item.title, " : "), 
-	          React.createElement("input", {key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
+	        React.createElement("div", {className: "form-group has-success"}, 
+	          label, 
+	          React.createElement("input", {className: "form-control", key: index, type: item.type, ref: item.name, id: item.name, defaultValue: item.value})
 	        )
 	      )
 	    }.bind(this));
+	
+	    var actBtn;
+	    if (this.props.items.act == "add") {
+	      actBtn = React.createElement("div", null, React.createElement("input", {className: "btn btn-info", type: "button", value: "新增", onClick: this._add}));
+	    } else {
+	      actBtn = React.createElement("div", null, React.createElement("input", {className: "btn btn-info", type: "button", value: "修改", onClick: this._edit}));
+	    }
+	
 	    return (
 	      React.createElement("div", null, 
 	        listItems, 
-	        React.createElement("input", {type: "button", value: "新增", onClick: this._add})
+	        actBtn
 	      )
 	    );
 	  }
@@ -19618,40 +19640,101 @@
 	var CHANGE_VIEW_ITEMS = 'change_view_items';
 	
 	var _store = {
-	  search: [],
+	  search: [
+	    {
+	      title: "姓名",
+	      name: "name",
+	      type: "text",
+	      value: ""
+	    }
+	  ],
 	  list:
 	    {
-	      cloumn : ["姓名", "密碼", "Action"],
+	      cloumn : ["Id", "姓名", "密碼", "Action"],
 	      lists : [
-	        ["jasonwang", "1234"],
-	        ["zoey", "45678"]
+	        ["1", "jasonwang", "1234"],
+	        ["2", "zoey", "45678"]
 	      ]
 	    },
 	  resultList:
 	    {
-	      rescloumn : ["姓名", "密碼", "Action"],
+	      rescloumn : ["Id", "姓名", "密碼", "Action"],
 	      reslists : [
-	        ["jasonwang", "1234"],
-	        ["zoey", "45678"]
+	        ["1", "jasonwang", "1234"],
+	        ["2", "zoey", "45678"]
 	      ]
 	    },
-	  view:[],
+	  view:{
+	    fields : [
+	      {
+	        title: "Id",
+	        name: "Id",
+	        type: "hidden",
+	        value: ""
+	      },
+	      {
+	        title: "姓名",
+	        name: "name",
+	        type: "text",
+	        value: ""
+	      },
+	      {
+	        title: "帳號",
+	        name: "id",
+	        type: "password",
+	        value: ""
+	      }
+	    ],
+	    act: "add"
+	  },
 	  status: {ListView : true, View: false}
 	};
 	
 	var addItem = function(items){
+	  console.log(items);
 	  _store.list.lists = React.addons.update(_store.list.lists, {$push: [items]});
 	  _store.resultList.rescloumn = _store.list.cloumn;
 	  _store.resultList.reslists = _store.list.lists;
 	};
 	
+	var editItem = function(eidtItems) {
+	  console.log('editItem');
+	  _store.list.lists.map(function (item, index){
+	
+	    if (eidtItems[0] == item[0]) {
+	      console.log(eidtItems[0] + " = " + item[0]);
+	      var name = eidtItems[1];
+	      var password = eidtItems[2];
+	      item[1] = name;
+	      item[2] = password;
+	    }
+	  });
+	  _store.resultList.rescloumn = _store.list.cloumn;
+	  _store.resultList.reslists = _store.list.lists;
+	}
+	
 	var setSearchItems = function(items) {
 	   _store.search = items;
 	};
 	
-	var setViewItems = function(items) {
-	  console.log('setViewItems');
-	  _store.view = items;
+	var setViewItems = function(id) {
+	  if (id != -1) {
+	    _store.list.lists.map(function (item, index){
+	      if (item[0] == id) {
+	        var name = item[1];
+	        var password = item[2];
+	        _store.view.fields[0].value = id;
+	        _store.view.fields[1].value = name;
+	        _store.view.fields[2].value = password;
+	        _store.view.act = "edit";
+	      }
+	    });
+	  } else {
+	    _store.view.fields[0].value = _store.list.lists.length + 1;
+	    _store.view.fields[1].value = "";
+	    _store.view.fields[2].value = "";
+	    _store.view.act = "add";
+	  }
 	}
 	
 	var searchList = function(items) {
@@ -19661,7 +19744,7 @@
 	      if (name == "") {
 	        resultLists.push(item);
 	      }
-	      if (name == item[0]) {
+	      if (name == item[1]) {
 	        resultLists.push(item);
 	      }
 	    });
@@ -19669,10 +19752,18 @@
 	   _store.resultList.reslists = resultLists;
 	};
 	
-	var deleteListItem = function(index) {
-	   _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[index,1]]});
-	   _store.resultList.rescloumn = _store.list.cloumn;
-	   _store.resultList.reslists = _store.list.lists;
+	var deleteListItem = function(id) {
+	  var deIndex = -1;
+	  _store.list.lists.map(function (item, index){
+	    if (item[0] == id) {
+	      deIndex = index;
+	    }
+	  });
+	  if (deIndex != -1) {
+	     _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[deIndex,1]]});
+	     _store.resultList.rescloumn = _store.list.cloumn;
+	     _store.resultList.reslists = _store.list.lists;
+	  }
 	};
 	
 	var adminStore = objectAssign({}, EventEmitter.prototype, {
@@ -19681,18 +19772,6 @@
 	  },
 	  removeChangeListener: function(cb){
 	    this.removeListener(CHANGE_EVENT, cb);
-	  },
-	  addChangeSearchItemsListener: function(cb){
-	    this.on(CHANGE_SEARCH_ITEMS, cb);
-	  },
-	  removeChangeSearchItemsListener: function(cb){
-	    this.removeListener(CHANGE_SEARCH_ITEMS, cb);
-	  },
-	  addChangeViewItemsListener: function(cb){
-	    this.on(CHANGE_VIEW_ITEMS, cb);
-	  },
-	  removeChangeViewItemsListener: function(cb){
-	    this.removeListener(CHANGE_VIEW_ITEMS, cb);
 	  },
 	  getSearchItems: function() {
 	    return _store.search;
@@ -19718,6 +19797,10 @@
 	      addItem(action.data);
 	      adminStore.emit(CHANGE_EVENT);
 	    break;
+	    case AdminConstants.EDIT:
+	      editItem(action.data);
+	      adminStore.emit(CHANGE_EVENT);
+	    break;
 	    case AdminConstants.SEARCH:
 	      searchList(action.data);
 	      adminStore.emit(CHANGE_EVENT);
@@ -19726,13 +19809,8 @@
 	      deleteListItem(action.data);
 	      adminStore.emit(CHANGE_EVENT);
 	    break;
-	    case AdminConstants.SET_SEARCH_ITEMS:
-	      setSearchItems(action.data);
-	      adminStore.emit(CHANGE_SEARCH_ITEMS);
-	    break;
 	    case AdminConstants.SET_VIEW_ITEMS:
 	      setViewItems(action.data);
-	      adminStore.emit(CHANGE_VIEW_ITEMS);
 	    break;
 	    default:
 	      return true;
@@ -20091,7 +20169,6 @@
 	  EDIT: "EDIT",
 	  SEARCH: "SEARCH",
 	  DELETE: "DELETE",
-	  SET_SEARCH_ITEMS: "SET_SEARCH_ITEMS",
 	  SET_VIEW_ITEMS: "SET_VIEW_ITEMS"
 	};
 	
@@ -22269,40 +22346,10 @@
 	      data: index
 	    });
 	  },
-	  setSearchItems: function(appNum) {
-	    // 假設已經 callback 回傳結果
-	    var items = [
-	        {
-	          title: "姓名",
-	          name: "name",
-	          type: "text",
-	          value: ""
-	        }
-	    ];
-	    AdminDispatcher.handleAction({
-	      actionType: AdminConstants.SET_SEARCH_ITEMS,
-	      data: items
-	    });
-	  },
-	  setViewItems: function(appNum, index) {
-	    // 假設已經 callback 回傳結果
-	    var items = [
-	        {
-	          title: "姓名",
-	          name: "name",
-	          type: "text",
-	          value: ""
-	        },
-	        {
-	          title: "帳號",
-	          name: "id",
-	          type: "password",
-	          value: ""
-	        },
-	    ];
+	  setViewItems: function(index) {
 	    AdminDispatcher.handleAction({
 	      actionType: AdminConstants.SET_VIEW_ITEMS,
-	      data: items
+	      data: index
 	    });
 	  }
 	}

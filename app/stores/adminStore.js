@@ -9,40 +9,101 @@ var CHANGE_SEARCH_ITEMS = 'change_search_items';
 var CHANGE_VIEW_ITEMS = 'change_view_items';
 
 var _store = {
-  search: [],
+  search: [
+    {
+      title: "姓名",
+      name: "name",
+      type: "text",
+      value: ""
+    }
+  ],
   list:
     {
-      cloumn : ["姓名", "密碼", "Action"],
+      cloumn : ["Id", "姓名", "密碼", "Action"],
       lists : [
-        ["jasonwang", "1234"],
-        ["zoey", "45678"]
+        ["1", "jasonwang", "1234"],
+        ["2", "zoey", "45678"]
       ]
     },
   resultList:
     {
-      rescloumn : ["姓名", "密碼", "Action"],
+      rescloumn : ["Id", "姓名", "密碼", "Action"],
       reslists : [
-        ["jasonwang", "1234"],
-        ["zoey", "45678"]
+        ["1", "jasonwang", "1234"],
+        ["2", "zoey", "45678"]
       ]
     },
-  view:[],
+  view:{
+    fields : [
+      {
+        title: "Id",
+        name: "Id",
+        type: "hidden",
+        value: ""
+      },
+      {
+        title: "姓名",
+        name: "name",
+        type: "text",
+        value: ""
+      },
+      {
+        title: "帳號",
+        name: "id",
+        type: "password",
+        value: ""
+      }
+    ],
+    act: "add"
+  },
   status: {ListView : true, View: false}
 };
 
 var addItem = function(items){
+  console.log(items);
   _store.list.lists = React.addons.update(_store.list.lists, {$push: [items]});
   _store.resultList.rescloumn = _store.list.cloumn;
   _store.resultList.reslists = _store.list.lists;
 };
 
+var editItem = function(eidtItems) {
+  console.log('editItem');
+  _store.list.lists.map(function (item, index){
+
+    if (eidtItems[0] == item[0]) {
+      console.log(eidtItems[0] + " = " + item[0]);
+      var name = eidtItems[1];
+      var password = eidtItems[2];
+      item[1] = name;
+      item[2] = password;
+    }
+  });
+  _store.resultList.rescloumn = _store.list.cloumn;
+  _store.resultList.reslists = _store.list.lists;
+}
+
 var setSearchItems = function(items) {
    _store.search = items;
 };
 
-var setViewItems = function(items) {
-  console.log('setViewItems');
-  _store.view = items;
+var setViewItems = function(id) {
+  if (id != -1) {
+    _store.list.lists.map(function (item, index){
+      if (item[0] == id) {
+        var name = item[1];
+        var password = item[2];
+        _store.view.fields[0].value = id;
+        _store.view.fields[1].value = name;
+        _store.view.fields[2].value = password;
+        _store.view.act = "edit";
+      }
+    });
+  } else {
+    _store.view.fields[0].value = _store.list.lists.length + 1;
+    _store.view.fields[1].value = "";
+    _store.view.fields[2].value = "";
+    _store.view.act = "add";
+  }
 }
 
 var searchList = function(items) {
@@ -52,7 +113,7 @@ var searchList = function(items) {
       if (name == "") {
         resultLists.push(item);
       }
-      if (name == item[0]) {
+      if (name == item[1]) {
         resultLists.push(item);
       }
     });
@@ -60,10 +121,18 @@ var searchList = function(items) {
    _store.resultList.reslists = resultLists;
 };
 
-var deleteListItem = function(index) {
-   _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[index,1]]});
-   _store.resultList.rescloumn = _store.list.cloumn;
-   _store.resultList.reslists = _store.list.lists;
+var deleteListItem = function(id) {
+  var deIndex = -1;
+  _store.list.lists.map(function (item, index){
+    if (item[0] == id) {
+      deIndex = index;
+    }
+  });
+  if (deIndex != -1) {
+     _store.list.lists = React.addons.update(_store.list.lists, {$splice: [[deIndex,1]]});
+     _store.resultList.rescloumn = _store.list.cloumn;
+     _store.resultList.reslists = _store.list.lists;
+  }
 };
 
 var adminStore = objectAssign({}, EventEmitter.prototype, {
@@ -72,18 +141,6 @@ var adminStore = objectAssign({}, EventEmitter.prototype, {
   },
   removeChangeListener: function(cb){
     this.removeListener(CHANGE_EVENT, cb);
-  },
-  addChangeSearchItemsListener: function(cb){
-    this.on(CHANGE_SEARCH_ITEMS, cb);
-  },
-  removeChangeSearchItemsListener: function(cb){
-    this.removeListener(CHANGE_SEARCH_ITEMS, cb);
-  },
-  addChangeViewItemsListener: function(cb){
-    this.on(CHANGE_VIEW_ITEMS, cb);
-  },
-  removeChangeViewItemsListener: function(cb){
-    this.removeListener(CHANGE_VIEW_ITEMS, cb);
   },
   getSearchItems: function() {
     return _store.search;
@@ -109,6 +166,10 @@ AdminDispatcher.register(function(payload){
       addItem(action.data);
       adminStore.emit(CHANGE_EVENT);
     break;
+    case AdminConstants.EDIT:
+      editItem(action.data);
+      adminStore.emit(CHANGE_EVENT);
+    break;
     case AdminConstants.SEARCH:
       searchList(action.data);
       adminStore.emit(CHANGE_EVENT);
@@ -117,13 +178,8 @@ AdminDispatcher.register(function(payload){
       deleteListItem(action.data);
       adminStore.emit(CHANGE_EVENT);
     break;
-    case AdminConstants.SET_SEARCH_ITEMS:
-      setSearchItems(action.data);
-      adminStore.emit(CHANGE_SEARCH_ITEMS);
-    break;
     case AdminConstants.SET_VIEW_ITEMS:
       setViewItems(action.data);
-      adminStore.emit(CHANGE_VIEW_ITEMS);
     break;
     default:
       return true;

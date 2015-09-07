@@ -26,40 +26,10 @@ var adminAction = {
       data: index
     });
   },
-  setSearchItems: function(appNum) {
-    // 假設已經 callback 回傳結果
-    var items = [
-        {
-          title: "姓名",
-          name: "name",
-          type: "text",
-          value: ""
-        }
-    ];
-    AdminDispatcher.handleAction({
-      actionType: AdminConstants.SET_SEARCH_ITEMS,
-      data: items
-    });
-  },
-  setViewItems: function(appNum, index) {
-    // 假設已經 callback 回傳結果
-    var items = [
-        {
-          title: "姓名",
-          name: "name",
-          type: "text",
-          value: ""
-        },
-        {
-          title: "帳號",
-          name: "id",
-          type: "password",
-          value: ""
-        },
-    ];
+  setViewItems: function(index) {
     AdminDispatcher.handleAction({
       actionType: AdminConstants.SET_VIEW_ITEMS,
-      data: items
+      data: index
     });
   }
 }
