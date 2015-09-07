@@ -1,6 +1,8 @@
 此項目主要是學習用 ReactJs 跟 Flux 架構
 模擬後台新增修改刪除的操作流程
 
+單純練習用XD 所以寫的很亂 
+
 建置順序
 ```markdown
 npm install
