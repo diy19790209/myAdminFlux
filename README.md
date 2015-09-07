@@ -46,9 +46,9 @@ Actions = {
   }
 }
 ```
-Flux 的架構主要是用主 root Component 的 state 去控制 子 Component 的項目刷新
+利用 root Component 的 state 去控制 子 Component 的項目刷新
 這種設計有助於 Component 在 Model 中的流動,
-當然 子 Component 的無state 設計也只是個建議參考
+當然 子 Component 的無state 設計也只是個建議
 
 參考連結<br />
 http://facebook.github.io/react/index.html<br />
